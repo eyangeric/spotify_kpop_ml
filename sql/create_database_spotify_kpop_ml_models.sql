@@ -1,0 +1,1 @@
+CREATE DATABASE spotify_kpop_ml_models;
