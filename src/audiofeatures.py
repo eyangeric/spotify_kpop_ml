@@ -28,7 +28,7 @@ def extract_track_details(TRACK_ID, TOKEN):
     popularity = track_details['popularity']
     artists = [artist['name'] for artist in track_details['artists']]
     artist_names = extract_artists_of_song(artists)
-    track_info = {'track': track_name, 'artist': artist_names, 'release_date': release_date, 'Popularity': popularity}
+    track_info = {'track_name': track_name, 'artist': artist_names, 'release_date': release_date, 'Popularity': popularity}
     return track_info
 
 def extract_audio_features(TRACK_ID, TOKEN, keys = ['duration_ms', 'valence', 'energy', 'key']):

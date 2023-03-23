@@ -22,7 +22,7 @@ def test_extract_artists_of_song():
 def test_extract_track_details():
     track_details = extract_track_details('7fjAIwn4DpKwTEqO08zN9H?', headers)
     assert type(track_details) == dict, 'Not a dictionary'
-    assert track_details == {'track': 'BAD BAD (Feat. Tabber, Jay Park)', 'artist': 'CODE KUNST, Tabber, and Jay Park', 'release_date': '2023-03-08', 'Popularity': 51}, 'Failed'
+    assert track_details == {'track_name': 'BAD BAD (Feat. Tabber, Jay Park)', 'artist': 'CODE KUNST, Tabber, and Jay Park', 'release_date': '2023-03-08', 'Popularity': 51}, 'Failed'
 
 def test_extract_audio_features():
     audio_features = extract_audio_features('7fjAIwn4DpKwTEqO08zN9H', headers)
