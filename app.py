@@ -12,6 +12,7 @@ from src.audiofeatures import extract_track_id, extract_artists_of_song, extract
 from src.lyricfeatures import scrape_lyrics, extract_translated_lyrics, extract_count_for_word, extract_lyric_sentiment, extract_song_lyrics_sentiment
 from src.track import Track
 from src.outcome import Outcome
+import psycopg2
 
 track_url = 'https://open.spotify.com/track/6ubzgznl4lqaCYV2kd7ewv?si=deafa76eb6dd482b'
 
@@ -21,6 +22,9 @@ track = Track(('track_id', track_id))
 
 #spotify api data
 track_details = extract_track_details(track_id, token)
+for track_info, value in track_details.items():
+    setattr(track, track_info, value)
+
 audio_features = extract_audio_features(track_id, token, keys = ['duration_ms', 'valence', 'energy', 'key'])
 for audio_feature, value in audio_features.items():
     setattr(track, audio_feature, value)
@@ -43,36 +47,47 @@ prediction = model.predict(X_test_scaled)[0]
 outcome = Outcome(prediction)
 
 all_track_info = {}
-for track_dict in [track.__dict__, outcome.__dict__]:
+for track_dict in [track.__dict__.items(), outcome.__dict__.items()]:
     for key, value in track_dict:
         all_track_info[key] = value
 
 final_output = pd.DataFrame([all_track_info])
 
 
+breakpoint()
 
 
 
 
 
+app = Flask(__name__, static_folder='static', template_folder = 'views')
+app.config['SECRET_KEY'] = 'd5qtfNZWXkU8VPCvswsCwER7Sh6UUGse'
 
-# app = Flask(__name__, static_folder='static', template_folder = 'views')
-# app.config['SECRET_KEY'] = 'd5qtfNZWXkU8VPCvswsCwER7Sh6UUGse'
+app.config.from_mapping(
+    DATABASE = DATABASE
+)
 
-# Bootstrap(app)
+Bootstrap(app)
 
-# class SpotifyUrlForm(FlaskForm):
-#     name = StringField('Paste your Spotify song URL here.', validators=[DataRequired()])
-#     submit = SubmitField('Submit')
+class SpotifyUrlForm(FlaskForm):
+    name = StringField('Paste your Spotify song URL here.', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
-# @app.route('/', methods = ['GET', 'POST'])
-# def index():
-#     form = SpotifyUrlForm()
-#     message = ''
-#     if request.method == 'POST':
-#         spotify_song_url = request.form.get('name')
-#         breakpoint()
-#         return f"URL: {spotify_song_url}"
-#     return render_template('index.html', form = form, message = message)
+@app.route('/', methods = ['GET', 'POST'])
+def index():
+    form = SpotifyUrlForm()
+    message = ''
+    if request.method == 'POST':
+        spotify_song_url = request.form.get('name')
+        breakpoint()
+        return f"URL: {spotify_song_url}"
+    
+    conn = psycopg2.connect(database = app.config['DATABASE'])
+    cursor = conn.cursor()
+    insert_sql = 'INSERT INTO api_data (ID, track_id, track_name, artist, release_date, Popularity, duration_ms, valence, energy, key, lyric_word_yeah, lyric_sentiment_score) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
+    insert_data = tuple(value for value in all_track_info.values())
+    cursor.execute(insert_sql, insert_data)
+    conn.commit()
+    return render_template('index.html', form = form, message = message)
 
-# app.run(debug = True)
+app.run(debug = True)
