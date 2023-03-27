@@ -14,44 +14,44 @@ from src.track import Track
 from src.outcome import Outcome
 import psycopg2
 
-# track_url = 'https://open.spotify.com/track/6ubzgznl4lqaCYV2kd7ewv?si=deafa76eb6dd482b'
+track_url = 'https://open.spotify.com/track/6ubzgznl4lqaCYV2kd7ewv?si=deafa76eb6dd482b'
 
-# token = get_authorization_token(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
-# track_id = extract_track_id(track_url)
-# track = Track(('track_id', track_id))
+token = get_authorization_token(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+track_id = extract_track_id(track_url)
+track = Track(('track_id', track_id))
 
-# #spotify api data
-# track_details = extract_track_details(track_id, token)
-# for track_info, value in track_details.items():
-#     setattr(track, track_info, value)
+#spotify api data
+track_details = extract_track_details(track_id, token)
+for track_info, value in track_details.items():
+    setattr(track, track_info, value)
 
-# audio_features = extract_audio_features(track_id, token, keys = ['duration_ms', 'valence', 'energy', 'key'])
-# for audio_feature, value in audio_features.items():
-#     setattr(track, audio_feature, value)
+audio_features = extract_audio_features(track_id, token, keys = ['duration_ms', 'valence', 'energy', 'key'])
+for audio_feature, value in audio_features.items():
+    setattr(track, audio_feature, value)
 
-# #spotify lyric data scrape
-# lyrics = scrape_lyrics(track_url, SPOTIFY_USERNAME, SPOTIFY_PASSWORD)
-# translated_lyrics = extract_translated_lyrics(lyrics)
-# yeah_word_count = extract_count_for_word(translated_lyrics, 'yeah')
-# setattr(track, 'lyric_word_yeah', yeah_word_count)
-# sentiment_score = extract_song_lyrics_sentiment(translated_lyrics)
-# setattr(track, 'lyric_sentiment_score', sentiment_score)
+#spotify lyric data scrape
+lyrics = scrape_lyrics(track_url, SPOTIFY_USERNAME, SPOTIFY_PASSWORD)
+translated_lyrics = extract_translated_lyrics(lyrics)
+yeah_word_count = extract_count_for_word(translated_lyrics, 'yeah')
+setattr(track, 'lyric_word_yeah', yeah_word_count)
+sentiment_score = extract_song_lyrics_sentiment(translated_lyrics)
+setattr(track, 'lyric_sentiment_score', sentiment_score)
 
-# # extract features and send through model
-# track_features = pd.DataFrame([track.__dict__])[['Popularity', 'duration_ms', 'valence',  'energy', 'key', 
-#             'lyric_word_yeah', 'lyric_sentiment_score']]
-# ss = pickle.load(open(f"src/standardscaler.pkl", 'rb'))
-# model = pickle.load(open(f"src/svm.pkl", 'rb'))
-# X_test_scaled = ss.fit_transform(track_features)
-# prediction = model.predict(X_test_scaled)[0]
-# outcome = Outcome(prediction)
+# extract features and send through model
+track_features = pd.DataFrame([track.__dict__])[['Popularity', 'duration_ms', 'valence',  'energy', 'key', 
+            'lyric_word_yeah', 'lyric_sentiment_score']]
+ss = pickle.load(open(f"src/standardscaler.pkl", 'rb'))
+model = pickle.load(open(f"src/svm.pkl", 'rb'))
+X_test_scaled = ss.fit_transform(track_features)
+prediction = model.predict(X_test_scaled)[0]
+outcome = Outcome(prediction)
 
-# all_track_info = {}
-# for track_dict in [track.__dict__.items(), outcome.__dict__.items()]:
-#     for key, value in track_dict:
-#         all_track_info[key] = value
+all_track_info = {}
+for track_dict in [track.__dict__.items(), outcome.__dict__.items()]:
+    for key, value in track_dict:
+        all_track_info[key] = value
 
-# final_output = pd.DataFrame([all_track_info])
+final_output = pd.DataFrame([all_track_info])
 
 app = Flask(__name__, static_folder='static', template_folder = 'views')
 app.config['SECRET_KEY'] = 'd5qtfNZWXkU8VPCvswsCwER7Sh6UUGse'
@@ -74,9 +74,11 @@ def index():
     if request.method == 'POST':
         spotify_song_url = request.form.get('name')
         spotify_song_outcome_class = int(request.form.get('actual_class'))
-        breakpoint()
-        return f"URL: {spotify_song_url}"
     
+    track_id = extract_track_id(spotify_song_url)
+
+
+
     conn = psycopg2.connect(database = app.config['DATABASE'])
     # cursor = conn.cursor()
     # insert_sql = 'INSERT INTO api_data (ID, track_id, track_name, artist, release_date, Popularity, duration_ms, valence, energy, key, lyric_word_yeah, lyric_sentiment_score) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'
@@ -84,7 +86,7 @@ def index():
     # cursor.execute(insert_sql, insert_data)
     # conn.commit()
 
-    # statement = f"{track.__dict__['track_name']} by {track.__dict__['artist']} is predicted to be a {outcome.__dict__['outcome']} type of song."
+    # statement = f"{track.track_name} by {track.artist} is predicted to be a {outcome.outcome} type of song."
     return render_template('index.html', form = form, message = message)
 
 app.run(debug = True)
