@@ -1,6 +1,7 @@
 from src.client import get_authorization_token
 from src.audiofeatures import extract_track_id, extract_artists_of_song, extract_track_details, extract_audio_features
 from settings import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+from datetime import datetime
 
 headers = get_authorization_token(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
 song_url = 'https://open.spotify.com/track/7fjAIwn4DpKwTEqO08zN9H?si=09cde79b65ee4305'
