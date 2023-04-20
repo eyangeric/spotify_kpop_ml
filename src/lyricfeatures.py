@@ -7,8 +7,9 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def scrape_lyrics(URL, USERNAME, PASSWORD):
     options = Options()
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("--verbose")
+    # options.add_argument("--window-size=1920x1080")
+    # options.add_argument("--verbose")
+    options.add_argument('headless')
     driver = webdriver.Chrome(options=options)
     driver.get(URL)
     
