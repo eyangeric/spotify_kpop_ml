@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 import time
 from googletrans import Translator
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -10,7 +12,8 @@ def scrape_lyrics(URL, USERNAME, PASSWORD):
     # options.add_argument("--window-size=1920x1080")
     # options.add_argument("--verbose")
     options.add_argument('headless')
-    driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
     
     time.sleep(2)
